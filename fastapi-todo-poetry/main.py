@@ -1,7 +1,8 @@
 # main.py
 
 # Import statements for modules within the project
-from src.todo.database.database_operations import engine, Base, create_tables
+from todo.database.database_connectivity import engine, Base
+from todo.database.database_tables import create_tables
 from src.todo.routes.main import app
 
 # Create database tables
