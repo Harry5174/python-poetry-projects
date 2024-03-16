@@ -1,33 +1,35 @@
 # type: ignore
-
+import os
 from sqlalchemy import create_engine, Column, Integer, String, text
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.exc import ProgrammingError
-from sqlalchemy.orm import declarative_base
+from sqlalchemy.ext.declarative import declarative_base
+from dotenv import load_dotenv
 
-SQLALCHEMY_DATABASE_URL = "DATABASE_URL"
+# Loaded environment variables from .env file in the root directory
+dotenv_path = os.path.join(os.path.dirname(__file__), '..', '..', '..', '.env')
+load_dotenv(dotenv_path)
 
-engine = create_engine(SQLALCHEMY_DATABASE_URL , pool_pre_ping=True)
-
-with engine.connect() as connection:
-    trans = connection.begin()
-    try:
-        connection.execute(text("CREATE TABLE IF NOT EXISTS todos (id SERIAL PRIMARY KEY, title VARCHAR(255), description VARCHAR(255))"))
-        trans.commit()
-                
-    except ProgrammingError as e:
-        trans.rollback()
-        if "already exists" in str(e):
-            print("Table already exists")
-        else:
-            print(f"An error occurred: {e}")
-
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+DATABASE_URL = os.getenv("DATABASE_URL")
 
 Base = declarative_base()
+engine = create_engine(DATABASE_URL , pool_pre_ping=True)
 
-from sqlalchemy import Column, Integer, String
-from sqlalchemy.ext.declarative import declarative_base
+def create_tables():
+    with engine.connect() as connection:
+        trans = connection.begin()
+        try:
+            connection.execute(text("CREATE TABLE IF NOT EXISTS todos (id SERIAL PRIMARY KEY, title VARCHAR(255), description VARCHAR(255))"))
+            trans.commit()
+            print("Table created successfully.")
+        except ProgrammingError as e:
+            trans.rollback()
+            if "already exists" in str(e):
+                print("Table already exists.")
+            else:
+                print(f"An error occurred: {e}")
+
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 class Todo(Base):
     __tablename__ = "todos"

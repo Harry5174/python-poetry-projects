@@ -3,7 +3,7 @@
 from fastapi import FastAPI, HTTPException, Depends
 from sqlalchemy.orm import Session
 from pydantic import BaseModel 
-from todo.database.database_operations import SessionLocal, engine, Todo
+from todo.database.database_operations import SessionLocal, Todo
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.sql import select
 
@@ -13,18 +13,19 @@ class TodoCreate(BaseModel):
 
 app: FastAPI = FastAPI()
 
-# origins = [
-#     "http://localhost:3000",
-#     "localhost:3000"
-# ]
+origins = [
+    "http://localhost",
+    "http://localhost:3000",
+    "http://localhost:8000",
+]
 
-# app.add_middleware(
-#     CORSMiddleware,
-#     allow_origins=origins,
-#     allow_credentials=True,
-#     allow_methods=["*"],
-#     allow_headers=["*"]
-# )
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"]
+)
 
 def get_db():
     db = SessionLocal()
